@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Antigravity Vault - Secure File Storage</title>
+    <!-- Modern Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #090d16;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --primary: #3b82f6;
+            --primary-glow: rgba(59, 130, 246, 0.4);
+            --accent: #06b6d4;
+            --accent-glow: rgba(6, 182, 212, 0.4);
+            --success: #10b981;
+            --danger: #ef4444;
+            --glow-color: rgba(99, 102, 241, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 50% 0%, var(--glow-color) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(6, 182, 212, 0.05) 0%, transparent 40%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            width: 100%;
+            max-width: 1200px;
+            padding: 2rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .logo {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: bold;
+            box-shadow: 0 0 15px var(--primary-glow);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: rgba(30, 41, 59, 0.4);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            border: 1px solid var(--card-border);
+        }
+
+        .user-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        .username {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        main {
+            width: 100%;
+            max-width: 1200px;
+            padding: 3rem 1.5rem;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2.5rem;
+        }
+
+        @media (min-width: 900px) {
+            main {
+                grid-template-columns: 380px 1fr;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            border: 1px solid var(--card-border);
+            padding: 2rem;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), 0 0 1px var(--primary-glow);
+        }
+
+        .card-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        /* Drag and Drop Zone */
+        .drop-zone {
+            border: 2px dashed rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 3rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            background: rgba(15, 23, 42, 0.2);
+        }
+
+        .drop-zone.dragover {
+            border-color: var(--primary);
+            background: rgba(59, 130, 246, 0.08);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.15);
+        }
+
+        .drop-icon {
+            font-size: 2.5rem;
+            color: var(--text-muted);
+            transition: transform 0.3s ease;
+        }
+
+        .drop-zone:hover .drop-icon {
+            transform: translateY(-5px);
+            color: var(--primary);
+        }
+
+        .drop-text {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .drop-text span {
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        /* Hide Input */
+        #file-input {
+            display: none;
+        }
+
+        /* File Preview */
+        .file-preview {
+            display: none;
+            background: rgba(15, 23, 42, 0.4);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .file-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+            overflow: hidden;
+        }
+
+        .file-name {
+            font-weight: 500;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .file-size {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .btn-cancel {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.2rem;
+        }
+
+        .btn-cancel:hover {
+            color: var(--danger);
+        }
+
+        /* Standard Buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            padding: 0.85rem 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px var(--primary-glow);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            font-size: 0.95rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px var(--primary-glow);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary:disabled {
+            background: #475569;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Spinner */
+        .spinner {
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Alert Notification */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            background: #1e293b;
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast-success {
+            border-left: 4px solid var(--success);
+        }
+
+        .toast-error {
+            border-left: 4px solid var(--danger);
+        }
+
+        /* Dashboard and Tables */
+        .dashboard {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            background: rgba(15, 23, 42, 0.3);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+
+        th {
+            background: rgba(30, 41, 59, 0.5);
+            color: var(--text-muted);
+            font-weight: 500;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--card-border);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+        }
+
+        td {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--card-border);
+            color: var(--text-main);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr {
+            transition: background 0.2s ease;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .file-name-cell {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 500;
+        }
+
+        .file-icon {
+            width: 32px;
+            height: 32px;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+
+        .date-cell {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .size-cell {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .action-cell {
+            text-align: right;
+        }
+
+        .btn-download {
+            background: rgba(6, 182, 212, 0.1);
+            color: var(--accent);
+            border: 1px solid rgba(6, 182, 212, 0.2);
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .btn-download:hover {
+            background: var(--accent);
+            color: #0f172a;
+            box-shadow: 0 0 10px var(--accent-glow);
+            transform: translateY(-1px);
+        }
+
+        .empty-state {
+            padding: 4rem 2rem;
+            text-align: center;
+            color: var(--text-muted);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            color: rgba(255, 255, 255, 0.05);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <div class="logo-icon">↑</div>
+            Antigravity Vault
+        </div>
+        <div class="user-profile" id="profile-container">
+            <div class="user-avatar" id="user-initial">A</div>
+            <div class="username" id="username-display">Loading...</div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Left Column: Upload Form -->
+        <div class="card">
+            <div class="card-title">Upload File</div>
+            
+            <div class="drop-zone" id="drop-zone">
+                <div class="drop-icon">📤</div>
+                <div class="drop-text" id="drop-zone-text">
+                    Drag and drop file here or <br><span>Browse Files</span>
+                </div>
+            </div>
+            
+            <input type="file" id="file-input">
+
+            <!-- File Selection Preview -->
+            <div class="file-preview" id="file-preview">
+                <div class="file-info">
+                    <div class="file-name" id="preview-filename">file.txt</div>
+                    <div class="file-size" id="preview-filesize">0 KB</div>
+                </div>
+                <button class="btn-cancel" id="btn-cancel" title="Remove file">✕</button>
+            </div>
+
+            <button class="btn-primary" id="btn-upload" disabled>
+                <div class="spinner" id="upload-spinner"></div>
+                <span>Encrypt & Upload</span>
+            </button>
+        </div>
+
+        <!-- Right Column: Dashboard Table -->
+        <div class="dashboard">
+            <div class="card" style="width: 100%;">
+                <div class="card-title" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>Encrypted Repository</span>
+                    <button class="btn-download" style="background: transparent; color: var(--text-muted); border-color: transparent;" onclick="loadFiles()">🔄 Refresh</button>
+                </div>
+
+                <div class="table-container">
+                    <table id="files-table">
+                        <thead>
+                            <tr>
+                                <th>File Name</th>
+                                <th>Size</th>
+                                <th>Upload Date</th>
+                                <th style="text-align: right;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="files-tbody">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+
+                    <div class="empty-state" id="empty-state" style="display: none;">
+                        <div class="empty-icon">📂</div>
+                        <div>No files uploaded yet. Secure your first file using the panel.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <span id="toast-icon">ℹ️</span>
+        <span id="toast-message">Notification text</span>
+    </div>
+
+    <script>
+        // DOM Elements
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const filePreview = document.getElementById('file-preview');
+        const previewFilename = document.getElementById('preview-filename');
+        const previewFilesize = document.getElementById('preview-filesize');
+        const btnCancel = document.getElementById('btn-cancel');
+        const btnUpload = document.getElementById('btn-upload');
+        const uploadSpinner = document.getElementById('upload-spinner');
+        const filesTbody = document.getElementById('files-tbody');
+        const emptyState = document.getElementById('empty-state');
+        const usernameDisplay = document.getElementById('username-display');
+        const userInitial = document.getElementById('user-initial');
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toast-message');
+        const toastIcon = document.getElementById('toast-icon');
+
+        let selectedFile = null;
+
+        // Initialize User Session
+        async function checkSession() {
+            try {
+                let response = await fetch('/api/files/me');
+                if (response.status === 401 || response.status === 403) {
+                    throw new Error("Unauthorized");
+                }
+                
+                let username = await response.text();
+                if (username === "anonymous") {
+                    // Trigger authentication window
+                    await forceAuthenticate();
+                } else {
+                    updateUserUI(username);
+                    loadFiles();
+                }
+            } catch (error) {
+                await forceAuthenticate();
+            }
+        }
+
+        // Force triggers the browser basic auth prompt by calling a secure API endpoint
+        async function forceAuthenticate() {
+            try {
+                let response = await fetch('/api/files');
+                if (response.status === 401) {
+                    // Browser automatically shows native dialog
+                    window.location.reload();
+                } else if (response.ok) {
+                    let meResponse = await fetch('/api/files/me');
+                    let username = await meResponse.text();
+                    updateUserUI(username);
+                    loadFiles();
+                }
+            } catch (error) {
+                showToast("Connection error: " + error.message, "error");
+            }
+        }
+
+        function updateUserUI(username) {
+            usernameDisplay.textContent = username;
+            userInitial.textContent = username.charAt(0);
+        }
+
+        // Load File list from API
+        async function loadFiles() {
+            try {
+                let response = await fetch('/api/files');
+                if (!response.ok) {
+                    throw new Error("Failed to fetch file database");
+                }
+                let files = await response.json();
+                renderFiles(files);
+            } catch (error) {
+                showToast(error.message, "error");
+            }
+        }
+
+        // Helper: Format file size
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Helper: Format Date
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            return date.toLocaleDateString(undefined, { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Render file table rows
+        function renderFiles(files) {
+            filesTbody.innerHTML = '';
+            if (files.length === 0) {
+                emptyState.style.display = 'flex';
+                document.getElementById('files-table').style.display = 'none';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            document.getElementById('files-table').style.display = 'table';
+
+            files.forEach(file => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>
+                        <div class="file-name-cell">
+                            <span class="file-icon">📄</span>
+                            <span>${escapeHtml(file.originalFileName)}</span>
+                        </div>
+                    </td>
+                    <td class="size-cell">${formatBytes(file.fileSize)}</td>
+                    <td class="date-cell">${formatDate(file.uploadTime)}</td>
+                    <td class="action-cell">
+                        <a href="/api/files/download/${file.id}" class="btn-download" target="_blank">
+                            <span>📥 Download</span>
+                        </a>
+                    </td>
+                `;
+                filesTbody.appendChild(tr);
+            });
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        // Drop Zone Drag and Drop Handlers
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                dropZone.classList.add('dragover');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+            }, false);
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files.length > 0) {
+                handleFileSelect(files[0]);
+            }
+        });
+
+        dropZone.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileSelect(e.target.files[0]);
+            }
+        });
+
+        function handleFileSelect(file) {
+            selectedFile = file;
+            previewFilename.textContent = file.name;
+            previewFilesize.textContent = formatBytes(file.size);
+            
+            // Show preview, hide dropzone
+            dropZone.style.display = 'none';
+            filePreview.style.display = 'flex';
+            
+            // Enable upload button
+            btnUpload.disabled = false;
+        }
+
+        btnCancel.addEventListener('click', (e) => {
+            e.stopPropagation();
+            resetFileInput();
+        });
+
+        function resetFileInput() {
+            selectedFile = null;
+            fileInput.value = '';
+            dropZone.style.display = 'flex';
+            filePreview.style.display = 'none';
+            btnUpload.disabled = true;
+        }
+
+        // Upload Button Click Handler
+        btnUpload.addEventListener('click', async () => {
+            if (!selectedFile) return;
+
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+
+            // Set UI Loading state
+            btnUpload.disabled = true;
+            btnCancel.disabled = true;
+            uploadSpinner.style.display = 'inline-block';
+            btnUpload.querySelector('span').textContent = 'Encrypting & Storing...';
+
+            try {
+                let response = await fetch('/api/files/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    showToast("File encrypted & uploaded successfully!", "success");
+                    resetFileInput();
+                    loadFiles();
+                } else {
+                    let errMessage = await response.text();
+                    throw new Error(errMessage || "Upload failed");
+                }
+            } catch (error) {
+                showToast("Upload failed: " + error.message, "error");
+                btnUpload.disabled = false;
+                btnCancel.disabled = false;
+            } finally {
+                uploadSpinner.style.display = 'none';
+                btnUpload.querySelector('span').textContent = 'Encrypt & Upload';
+            }
+        });
+
+        // Toast Messages
+        let toastTimeout;
+        function showToast(message, type = "success") {
+            clearTimeout(toastTimeout);
+            toastMessage.textContent = message;
+            
+            toast.className = 'toast show';
+            if (type === 'success') {
+                toast.classList.add('toast-success');
+                toastIcon.textContent = '✅';
+            } else {
+                toast.classList.add('toast-error');
+                toastIcon.textContent = '❌';
+            }
+
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 4000);
+        }
+
+        // Start App
+        checkSession();
+    </script>
+</body>
+</html>
