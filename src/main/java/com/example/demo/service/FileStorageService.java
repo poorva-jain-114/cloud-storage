@@ -35,7 +35,7 @@ public class FileStorageService {
     @Value("${file.upload.dir:uploads}")
     private String uploadDir;
 
-    @Value("${file.encryption.secret}")
+    @Value("${file.encryption.secret:my-super-secret-key-16-bytes-long!}")
     private String secretKeyString;
 
     private SecretKeySpec secretKey;
