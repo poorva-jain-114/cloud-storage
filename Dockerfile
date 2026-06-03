@@ -5,7 +5,7 @@ COPY pom.xml .
 # Cache Maven dependencies
 RUN mvn dependency:go-offline -B
 COPY src ./src
-RUN mvn clean package -DskipTests
+RUN mvn clean package -DskipTests -Dspring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
 
 # Stage 2: Run the application on a slim JRE
 FROM eclipse-temurin:21-jre-jammy
