@@ -17,14 +17,18 @@ public class DatabaseConfig {
 
     @Bean
     public DataSource dataSource() {
+        System.out.println("=== DatabaseConfig: dataSource() initialized ===");
+        System.out.println("=== Original databaseUrl: " + databaseUrl);
         String rawUrl = databaseUrl;
         if (rawUrl != null && rawUrl.startsWith("jdbc:")) {
             // Strip "jdbc:" to allow URI parsing of user info if it's formatted as jdbc:postgresql://user:pass@host/db
             rawUrl = rawUrl.substring(5);
         }
+        System.out.println("=== Parsed rawUrl: " + rawUrl);
 
         // If the URL is in postgresql:// or postgres:// URI format (e.g. from Render or Heroku)
         if (rawUrl != null && (rawUrl.startsWith("postgres://") || rawUrl.startsWith("postgresql://"))) {
+            System.out.println("=== Matches postgres/postgresql URI format ===");
             try {
                 URI dbUri = new URI(rawUrl);
                 String userInfo = dbUri.getUserInfo();
@@ -44,18 +48,25 @@ public class DatabaseConfig {
                         dbUrl += "?sslmode=require";
                     }
 
+                    System.out.println("=== Rebuilt dbUrl: " + dbUrl);
+                    System.out.println("=== Username extracted: " + username);
+
                     return DataSourceBuilder.create()
                             .url(dbUrl)
                             .username(username)
                             .password(password)
                             .driverClassName("org.postgresql.Driver")
                             .build();
+                } else {
+                    System.out.println("=== No userInfo or colon found in rawUrl ===");
                 }
             } catch (URISyntaxException | NullPointerException e) {
+                System.out.println("=== URI parsing failed: " + e.getMessage());
                 throw new RuntimeException("Failed to parse Render/Heroku PostgreSQL database URI: " + databaseUrl, e);
             }
         }
 
+        System.out.println("=== Falling back to standard Spring Boot datasource ===");
         // Fallback to standard Spring Boot datasource creation
         return DataSourceBuilder.create()
                 .url(databaseUrl)
