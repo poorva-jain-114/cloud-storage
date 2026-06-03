@@ -19,15 +19,32 @@ public class DataSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        if (userRepository.findByUsername("alice").isEmpty()) {
-            User alice = new User("alice", "alice@example.com");
-            alice.setPassword(passwordEncoder.encode("password"));
-            userRepository.save(alice);
-        }
-        if (userRepository.findByUsername("bob").isEmpty()) {
-            User bob = new User("bob", "bob@example.com");
-            bob.setPassword(passwordEncoder.encode("password"));
-            userRepository.save(bob);
-        }
+        userRepository.findByUsername("alice").ifPresentOrElse(
+            alice -> {
+                if (alice.getPassword() == null) {
+                    alice.setPassword(passwordEncoder.encode("password"));
+                    userRepository.save(alice);
+                }
+            },
+            () -> {
+                User alice = new User("alice", "alice@example.com");
+                alice.setPassword(passwordEncoder.encode("password"));
+                userRepository.save(alice);
+            }
+        );
+
+        userRepository.findByUsername("bob").ifPresentOrElse(
+            bob -> {
+                if (bob.getPassword() == null) {
+                    bob.setPassword(passwordEncoder.encode("password"));
+                    userRepository.save(bob);
+                }
+            },
+            () -> {
+                User bob = new User("bob", "bob@example.com");
+                bob.setPassword(passwordEncoder.encode("password"));
+                userRepository.save(bob);
+            }
+        );
     }
 }
