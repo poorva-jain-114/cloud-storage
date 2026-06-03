@@ -12,4 +12,4 @@ FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+CMD ["sh", "-c", "java -jar target/*.jar --spring.datasource.url=${SPRING_URL} --server.port=${PORT}"]
