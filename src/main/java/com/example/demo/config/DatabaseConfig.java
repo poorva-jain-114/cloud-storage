@@ -17,17 +17,27 @@ public class DatabaseConfig {
 
     @Bean
     public DataSource dataSource() {
+        String rawUrl = databaseUrl;
+        if (rawUrl != null && rawUrl.startsWith("jdbc:")) {
+            // Strip "jdbc:" to allow URI parsing of user info if it's formatted as jdbc:postgresql://user:pass@host/db
+            rawUrl = rawUrl.substring(5);
+        }
+
         // If the URL is in postgresql:// or postgres:// URI format (e.g. from Render or Heroku)
-        if (databaseUrl != null && (databaseUrl.startsWith("postgres://") || databaseUrl.startsWith("postgresql://"))) {
+        if (rawUrl != null && (rawUrl.startsWith("postgres://") || rawUrl.startsWith("postgresql://"))) {
             try {
-                URI dbUri = new URI(databaseUrl);
+                URI dbUri = new URI(rawUrl);
                 String userInfo = dbUri.getUserInfo();
                 if (userInfo != null && userInfo.contains(":")) {
                     String username = userInfo.split(":")[0];
                     String password = userInfo.split(":")[1];
                     
-                    // Rebuild into valid JDBC URL format: jdbc:postgresql://host:port/database
-                    String dbUrl = "jdbc:postgresql://" + dbUri.getHost() + ":" + dbUri.getPort() + dbUri.getPath();
+                    // Rebuild into valid JDBC URL format: jdbc:postgresql://host[:port]/database
+                    String dbUrl = "jdbc:postgresql://" + dbUri.getHost();
+                    if (dbUri.getPort() >= 0) {
+                        dbUrl += ":" + dbUri.getPort();
+                    }
+                    dbUrl += dbUri.getPath();
                     
                     // Render databases require SSL by default
                     if (!dbUrl.contains("?")) {
