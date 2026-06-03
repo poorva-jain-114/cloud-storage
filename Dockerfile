@@ -10,6 +10,6 @@ RUN mvn clean package -DskipTests -Dspring.autoconfigure.exclude=org.springframe
 # Stage 2: Run the application on a slim JRE
 FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
-COPY --from=build /app/target/*.jar app.jar
+COPY --from=build /app/target/*.jar target/app.jar
 EXPOSE 8080
-CMD ["sh", "-c", "java -jar target/app.jar --spring.datasource.url=${SPRING_URL} --server.port=${PORT}"]
+ENTRYPOINT ["java", "-jar", "target/app.jar"]
