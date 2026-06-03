@@ -5,6 +5,7 @@ import com.example.demo.entity.FileMetadata;
 import com.example.demo.entity.User;
 import com.example.demo.repository.FileMetadataRepository;
 import com.example.demo.repository.UserRepository;
+import com.example.demo.service.CustomUserDetailsService;
 import com.example.demo.service.FileStorageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -29,7 +31,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(FileController.class)
-@Import(SecurityConfig.class)
+@Import({SecurityConfig.class, CustomUserDetailsService.class})
 class FileControllerTest {
 
     @Autowired
@@ -49,11 +51,15 @@ class FileControllerTest {
 
     @BeforeEach
     void setUp() {
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
         aliceUser = new User("alice", "alice@example.com");
         aliceUser.setId(1L);
+        aliceUser.setPassword(encoder.encode("password"));
 
         bobUser = new User("bob", "bob@example.com");
         bobUser.setId(2L);
+        bobUser.setPassword(encoder.encode("password"));
 
         when(userRepository.findByUsername("alice")).thenReturn(Optional.of(aliceUser));
         when(userRepository.findByUsername("bob")).thenReturn(Optional.of(bobUser));

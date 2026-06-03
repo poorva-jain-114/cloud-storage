@@ -18,6 +18,9 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(nullable = false)
+    private String password;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FileMetadata> files = new ArrayList<>();
 
@@ -70,5 +73,13 @@ public class User {
     public void removeFile(FileMetadata file) {
         files.remove(file);
         file.setUser(null);
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

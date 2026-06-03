@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Antigravity Vault - Secure File Storage</title>
+    <title>Private Vault - Secure File Storage</title>
     <!-- Modern Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -448,6 +448,112 @@
             font-size: 3rem;
             color: rgba(255, 255, 255, 0.05);
         }
+
+        .auth-container {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            max-width: 450px;
+            margin: 4rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .auth-card {
+            width: 100%;
+            padding: 2.5rem;
+        }
+
+        .auth-tabs {
+            display: flex;
+            background: rgba(15, 23, 42, 0.4);
+            border-radius: 8px;
+            padding: 0.25rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--card-border);
+        }
+
+        .auth-tab {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 0.6rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .auth-tab.active {
+            background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+            color: white;
+            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.2);
+        }
+
+        .auth-subtitle {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: -0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .input-group label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-align: left;
+        }
+
+        .input-group input {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            color: white;
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.15);
+        }
+
+        .btn-logout {
+            background: transparent;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: var(--danger);
+            padding: 0.4rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-left: 0.5rem;
+        }
+
+        .btn-logout:hover {
+            background: var(--danger);
+            color: white;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+        }
     </style>
 </head>
 <body>
@@ -455,15 +561,66 @@
     <header>
         <div class="logo">
             <div class="logo-icon">↑</div>
-            Antigravity Vault
+            Private Vault
         </div>
-        <div class="user-profile" id="profile-container">
-            <div class="user-avatar" id="user-initial">A</div>
+        <div class="user-profile" id="profile-container" style="display: none;">
+            <div class="user-avatar" id="user-initial">P</div>
             <div class="username" id="username-display">Loading...</div>
+            <button class="btn-logout" id="btn-logout">Logout</button>
         </div>
     </header>
 
-    <main>
+    <!-- Auth Container -->
+    <div class="auth-container" id="auth-container">
+        <div class="card auth-card">
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Sign In</button>
+                <button class="auth-tab" id="tab-register" onclick="switchAuthTab('register')">Register</button>
+            </div>
+            
+            <!-- Login Form -->
+            <form id="login-form" class="auth-form" onsubmit="handleLogin(event)">
+                <h2 class="card-title">Welcome Back</h2>
+                <p class="auth-subtitle">Access your private secure files</p>
+                <div class="input-group">
+                    <label for="login-username">Username</label>
+                    <input type="text" id="login-username" required placeholder="Enter username">
+                </div>
+                <div class="input-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" required placeholder="Enter password">
+                </div>
+                <button type="submit" class="btn-primary" id="btn-login-submit">
+                    <div class="spinner" id="login-spinner"></div>
+                    <span>Sign In</span>
+                </button>
+            </form>
+
+            <!-- Register Form -->
+            <form id="register-form" class="auth-form" style="display: none;" onsubmit="handleRegister(event)">
+                <h2 class="card-title">Create Account</h2>
+                <p class="auth-subtitle">Get started with your secure vault</p>
+                <div class="input-group">
+                    <label for="register-username">Username</label>
+                    <input type="text" id="register-username" required placeholder="Choose a username">
+                </div>
+                <div class="input-group">
+                    <label for="register-email">Email Address</label>
+                    <input type="email" id="register-email" required placeholder="your.name@example.com">
+                </div>
+                <div class="input-group">
+                    <label for="register-password">Password</label>
+                    <input type="password" id="register-password" required placeholder="Choose a password">
+                </div>
+                <button type="submit" class="btn-primary" id="btn-register-submit">
+                    <div class="spinner" id="register-spinner"></div>
+                    <span>Create Account</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <main id="main-content" style="display: none;">
         <!-- Left Column: Upload Form -->
         <div class="card">
             <div class="card-title">Upload File</div>
@@ -550,54 +707,182 @@
 
         let selectedFile = null;
 
+        // Credentials & Header helpers
+        function getAuthHeader() {
+            const token = localStorage.getItem('auth_token');
+            return token ? { 'Authorization': 'Basic ' + token } : {};
+        }
+
         // Initialize User Session
         async function checkSession() {
+            const token = localStorage.getItem('auth_token');
+            if (!token) {
+                showAuthUI();
+                return;
+            }
+
             try {
-                let response = await fetch('/api/files/me');
+                let response = await fetch('/api/files/me', {
+                    headers: getAuthHeader()
+                });
+                
                 if (response.status === 401 || response.status === 403) {
-                    throw new Error("Unauthorized");
+                    localStorage.removeItem('auth_token');
+                    showAuthUI();
+                    return;
                 }
                 
                 let username = await response.text();
                 if (username === "anonymous") {
-                    // Trigger authentication window
-                    await forceAuthenticate();
+                    localStorage.removeItem('auth_token');
+                    showAuthUI();
                 } else {
-                    updateUserUI(username);
+                    showDashboardUI(username);
                     loadFiles();
                 }
             } catch (error) {
-                await forceAuthenticate();
+                localStorage.removeItem('auth_token');
+                showAuthUI();
             }
         }
 
-        // Force triggers the browser basic auth prompt by calling a secure API endpoint
-        async function forceAuthenticate() {
-            try {
-                let response = await fetch('/api/files');
-                if (response.status === 401) {
-                    // Browser automatically shows native dialog
-                    window.location.reload();
-                } else if (response.ok) {
-                    let meResponse = await fetch('/api/files/me');
-                    let username = await meResponse.text();
-                    updateUserUI(username);
-                    loadFiles();
-                }
-            } catch (error) {
-                showToast("Connection error: " + error.message, "error");
-            }
+        function showAuthUI() {
+            document.getElementById('auth-container').style.display = 'flex';
+            document.getElementById('main-content').style.display = 'none';
+            document.getElementById('profile-container').style.display = 'none';
+            resetAuthForms();
         }
 
-        function updateUserUI(username) {
+        function showDashboardUI(username) {
+            document.getElementById('auth-container').style.display = 'none';
+            document.getElementById('main-content').style.display = 'grid';
+            document.getElementById('profile-container').style.display = 'flex';
             usernameDisplay.textContent = username;
-            userInitial.textContent = username.charAt(0);
+            userInitial.textContent = username.charAt(0).toUpperCase();
         }
+
+        function resetAuthForms() {
+            document.getElementById('login-form').reset();
+            document.getElementById('register-form').reset();
+            switchAuthTab('login');
+        }
+
+        function switchAuthTab(tab) {
+            const loginForm = document.getElementById('login-form');
+            const registerForm = document.getElementById('register-form');
+            const tabLogin = document.getElementById('tab-login');
+            const tabRegister = document.getElementById('tab-register');
+
+            if (tab === 'login') {
+                loginForm.style.display = 'flex';
+                registerForm.style.display = 'none';
+                tabLogin.classList.add('active');
+                tabRegister.classList.remove('active');
+            } else {
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'flex';
+                tabLogin.classList.remove('active');
+                tabRegister.classList.add('active');
+            }
+        }
+
+        async function handleLogin(event) {
+            event.preventDefault();
+            const usernameInput = document.getElementById('login-username').value.trim();
+            const passwordInput = document.getElementById('login-password').value;
+            const submitBtn = document.getElementById('btn-login-submit');
+            const spinner = document.getElementById('login-spinner');
+
+            if (!usernameInput || !passwordInput) return;
+
+            submitBtn.disabled = true;
+            spinner.style.display = 'inline-block';
+            submitBtn.querySelector('span').textContent = 'Signing in...';
+
+            const token = btoa(unescape(encodeURIComponent(usernameInput + ':' + passwordInput)));
+
+            try {
+                let response = await fetch('/api/files/me', {
+                    headers: { 'Authorization': 'Basic ' + token }
+                });
+
+                if (response.ok) {
+                    let verifiedUser = await response.text();
+                    if (verifiedUser === "anonymous") {
+                        throw new Error("Invalid username or password");
+                    }
+                    localStorage.setItem('auth_token', token);
+                    showToast("Signed in successfully!", "success");
+                    showDashboardUI(verifiedUser);
+                    loadFiles();
+                } else {
+                    throw new Error("Invalid username or password");
+                }
+            } catch (error) {
+                showToast("Sign in failed: " + error.message, "error");
+            } finally {
+                submitBtn.disabled = false;
+                spinner.style.display = 'none';
+                submitBtn.querySelector('span').textContent = 'Sign In';
+            }
+        }
+
+        async function handleRegister(event) {
+            event.preventDefault();
+            const usernameInput = document.getElementById('register-username').value.trim();
+            const emailInput = document.getElementById('register-email').value.trim();
+            const passwordInput = document.getElementById('register-password').value;
+            const submitBtn = document.getElementById('btn-register-submit');
+            const spinner = document.getElementById('register-spinner');
+
+            if (!usernameInput || !passwordInput || !emailInput) return;
+
+            submitBtn.disabled = true;
+            spinner.style.display = 'inline-block';
+            submitBtn.querySelector('span').textContent = 'Registering...';
+
+            try {
+                let response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: usernameInput,
+                        email: emailInput,
+                        password: passwordInput
+                    })
+                });
+
+                if (response.ok) {
+                    showToast("Registration successful! Please sign in.", "success");
+                    switchAuthTab('login');
+                    document.getElementById('login-username').value = usernameInput;
+                } else {
+                    let errText = await response.text();
+                    throw new Error(errText || "Registration failed");
+                }
+            } catch (error) {
+                showToast("Registration failed: " + error.message, "error");
+            } finally {
+                submitBtn.disabled = false;
+                spinner.style.display = 'none';
+                submitBtn.querySelector('span').textContent = 'Create Account';
+            }
+        }
+
+        document.getElementById('btn-logout').addEventListener('click', () => {
+            localStorage.removeItem('auth_token');
+            showToast("Logged out successfully", "success");
+            showAuthUI();
+        });
 
         // Load File list from API
         async function loadFiles() {
             try {
-                let response = await fetch('/api/files');
+                let response = await fetch('/api/files', {
+                    headers: getAuthHeader()
+                });
                 if (!response.ok) {
                     throw new Error("Failed to fetch file database");
                 }
@@ -654,13 +939,40 @@
                     <td class="size-cell">${formatBytes(file.fileSize)}</td>
                     <td class="date-cell">${formatDate(file.uploadTime)}</td>
                     <td class="action-cell">
-                        <a href="/api/files/download/${file.id}" class="btn-download" target="_blank">
+                        <button onclick="downloadFile(${file.id}, '${file.originalFileName.replace(/'/g, "\\'")}')" class="btn-download">
                             <span>📥 Download</span>
-                        </a>
+                        </button>
                     </td>
                 `;
                 filesTbody.appendChild(tr);
             });
+        }
+
+        async function downloadFile(fileId, fileName) {
+            try {
+                showToast("Starting download...", "success");
+                let response = await fetch(`/api/files/download/${fileId}`, {
+                    headers: getAuthHeader()
+                });
+                
+                if (!response.ok) {
+                    throw new Error("Failed to download file");
+                }
+                
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                showToast("Download complete!", "success");
+            } catch (error) {
+                showToast("Download failed: " + error.message, "error");
+            }
         }
 
         function escapeHtml(str) {
@@ -742,6 +1054,7 @@
             try {
                 let response = await fetch('/api/files/upload', {
                     method: 'POST',
+                    headers: getAuthHeader(),
                     body: formData
                 });
 
