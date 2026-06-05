@@ -86,7 +86,9 @@ public class FileController {
                     .contentLength(metadata.getFileSize())
                     .body(resource);
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to decrypt and stream file", e);
+            System.err.println("=== ERROR: File download/decrypt failed ===");
+            e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to decrypt and stream file: " + e.getMessage(), e);
         }
     }
 
